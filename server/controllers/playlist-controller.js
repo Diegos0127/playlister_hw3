@@ -7,6 +7,7 @@ const Playlist = require('../models/playlist-model')
     @author McKilla Gorilla
 */
 
+/*
 createPlaylist = (req, res) => {
     const body = req.body;
     console.log("createPlaylist body: " + body);
@@ -20,6 +21,32 @@ createPlaylist = (req, res) => {
 
     const playlist = new Playlist(body);
     console.log("playlist: " + JSON.stringify(body));
+    if (!playlist) {
+        return res.status(400).json({ success: false, error: err })
+    }
+
+    playlist
+        .save()
+        .then(() => {
+            return res.status(201).json({
+                success: true,
+                playlist: playlist,
+                message: 'Playlist Created!',
+            })
+        })
+        .catch(error => {
+            return res.status(400).json({
+                error,
+                message: 'Playlist Not Created!',
+            })
+        })
+}
+*/
+createPlaylist = (req, res) => {
+    const body = {name: 'Untitled',songs:[]};   
+    const playlist = new Playlist(body);
+    //console.log("playlist: " + JSON.stringify(body));
+    console.log("content:"+ playlist)
     if (!playlist) {
         return res.status(400).json({ success: false, error: err })
     }

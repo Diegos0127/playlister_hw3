@@ -30,6 +30,13 @@ function ListCard(props) {
         event.stopPropagation();
         toggleEdit();
     }
+    function handleDeletePlaylist(event){
+        event.stopPropagation();
+        let _id = event.target.id;
+        if (_id.indexOf('delete-list-') >= 0)
+            _id = ("" + _id).substring("delete-list-".length);
+        store.markPlaylistForDeletion(_id);
+    }
 
     function toggleEdit() {
         let newActive = !editActive;
@@ -74,8 +81,9 @@ function ListCard(props) {
                 disabled={cardStatus}
                 type="button"
                 id={"delete-list-" + idNamePair._id}
+                onClick={handleDeletePlaylist}
                 className="list-card-button"
-                value={"\u2715"}
+                value={"\uD83D\uDDD1"}
             />
             <input
                 disabled={cardStatus}

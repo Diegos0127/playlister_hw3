@@ -15,6 +15,9 @@ export const GlobalStoreActionType = {
     CHANGE_LIST_NAME: "CHANGE_LIST_NAME",
     CLOSE_CURRENT_LIST: "CLOSE_CURRENT_LIST",
     CREATE_NEW_LIST: "CREATE_NEW_LIST",
+    DELETE_MARKED_LIST: "DELETE_MARKED_LIST",
+    MARK_LIST_FOR_DELETION: "MARK_LIST_FOR_DELETION",
+    CANCEL_ACTION: "CANCEL_ACTION",
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
     SET_LIST_NAME_EDIT_ACTIVE: "SET_LIST_NAME_EDIT_ACTIVE",
@@ -31,7 +34,8 @@ export const useGlobalStore = () => {
         idNamePairs: [],
         currentList: null,
         newListCounter: 0,
-        listNameActive: false
+        listNameActive: false,
+        markedList: null
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -59,12 +63,21 @@ export const useGlobalStore = () => {
             }
             // CREATE A NEW LIST
             case GlobalStoreActionType.CREATE_NEW_LIST: {
-                console.log("create list"+ store.idNamePairs);
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: payload,
                     newListCounter: store.newListCounter + 1,
                     listNameActive: false
+                })
+            }
+            // DELETE A LIST
+            case GlobalStoreActionType.DELETE_MARKED_LIST: {
+                return setStore({
+                    idNamePairs: payload,
+                    currentList: null,
+                    newListCounter: store.newListCounter - 1,
+                    listNameActive: false,
+                    markedList: null
                 })
             }
             // GET ALL THE LISTS SO WE CAN PRESENT THEM
@@ -82,7 +95,18 @@ export const useGlobalStore = () => {
                     idNamePairs: store.idNamePairs,
                     currentList: null,
                     newListCounter: store.newListCounter,
-                    listNameActive: false
+                    listNameActive: false,
+                    markedList: payload
+                });
+            }
+            // CANCELING AN ACTION OF MARKED LIST
+            case GlobalStoreActionType.CANCEL_ACTION: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: null,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    markedList: null
                 });
             }
             // UPDATE A LIST
@@ -165,8 +189,59 @@ export const useGlobalStore = () => {
         }
         asyncCreateNewList();
     }
-
-
+    //THIS FUNCTION DELETES A LIST
+    store.deletePlaylist = function(){
+        async function asyncDeleteList() {
+            let response = await api.deletePlaylist(store.markedList._id);
+            if(response.data.success){
+                async function getListPairs() {
+                    response = await api.getPlaylistPairs();
+                    if (response.data.success) {
+                        storeReducer({
+                            type: GlobalStoreActionType.DELETE_MARKED_LIST,
+                            payload: response.data.idNamePairs
+                        });
+                    }
+                }
+                getListPairs();
+            }
+            store.hideDeleteListModal();
+        }
+        asyncDeleteList()
+    }
+    // THIS FUNCTION PROCESSES MARKING A LIST FOR DELETION
+    store.markPlaylistForDeletion = function(id) {
+        store.showDeleteListModal();
+        async function asyncGetPlaylist(id){
+            let response = await api.getPlaylistById(id)
+            if(response.data.success){
+                storeReducer({
+                    type: GlobalStoreActionType.MARK_LIST_FOR_DELETION,
+                    payload: response.data.playlist
+                });
+            }   
+        }
+        asyncGetPlaylist(id);
+    }
+    // THIS FUNCTION CANCELS DELETION OF A LIST
+    store.cancelListDeletion = function(){
+        store.hideDeleteListModal();
+        storeReducer({
+            type: GlobalStoreActionType.CANCEL_ACTION,
+            payload: null
+        });
+    }
+    // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
+    // TO SEE IF THEY REALLY WANT TO DELETE THE LIST
+    store.showDeleteListModal = function() {
+        let modal = document.getElementById("delete-list-modal");
+        modal.classList.add("is-visible");
+    }
+    // THIS FUNCTION IS FOR HIDING THE MODAL
+    store.hideDeleteListModal = function() {
+        let modal = document.getElementById("delete-list-modal");
+        modal.classList.remove("is-visible");
+    }
     // THIS FUNCTION PROCESSES CLOSING THE CURRENTLY LOADED LIST
     store.closeCurrentList = function () {
         storeReducer({

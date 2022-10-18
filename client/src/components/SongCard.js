@@ -5,6 +5,7 @@ function SongCard(props) {
     const { store } = useContext(GlobalStoreContext);
 
     const { song, index } = props;
+
     let cardClass = "list-card unselected-list-card";
     return (
         <div

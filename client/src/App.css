@@ -89,6 +89,14 @@ body {
   cursor: pointer;
   opacity: 100%;
 }
+.playlister-button-add, .playlister-button-disabled-add{
+  font-size:37.5pt;
+  border-width: 0px;
+  float:left;
+  color: black;
+  cursor: pointer;
+  opacity: 100%;
+}
 
 .playlister-button:hover {
   cursor: pointer;

@@ -30,6 +30,7 @@ const tps = new jsTPS();
 // AVAILABLE TO THE REST OF THE APPLICATION
 export const useGlobalStore = () => {
     // THESE ARE ALL THE THINGS OUR DATA STORE WILL MANAGE
+    console.log("starting");
     const [store, setStore] = useState({
         idNamePairs: [],
         currentList: null,
@@ -226,6 +227,7 @@ export const useGlobalStore = () => {
     // THIS FUNCTION CANCELS DELETION OF A LIST
     store.cancelListDeletion = function(){
         store.hideDeleteListModal();
+        console.log("Deletion of Playlist canceled")
         storeReducer({
             type: GlobalStoreActionType.CANCEL_ACTION,
             payload: null
@@ -249,6 +251,36 @@ export const useGlobalStore = () => {
             payload: {}
         });
     }
+    // THIS FUNCTION PROCESSES ADDING A SONG
+    store.createNewSong = function () {
+        // GET THE LIST
+        async function asyncCreateNewSong() {
+            let response = await api.getPlaylistById(store.currentList._id);
+            if (response.data.success) {
+                let playlist = response.data.playlist;
+                async function addSong(playlist) {
+                    let newSongs = playlist.songs;
+                    newSongs.push({
+                        title: "Untitled",
+                        artist: "Unknown",
+                        youTubeId: "dQw4w9WgXcQ"
+                    });
+                    response = await api.updatePlaylistSongs(playlist._id,newSongs);
+                    if (response.data.success) {
+                        store.currentList.songs = newSongs;
+                        storeReducer({
+                            type: GlobalStoreActionType.SET_CURRENT_LIST,
+                            payload: store.currentList
+                        });
+                    }
+                }
+                addSong(playlist);
+            }       
+        }
+        asyncCreateNewSong();
+    }
+
+
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = function () {

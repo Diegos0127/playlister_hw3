@@ -84,6 +84,7 @@ body {
 .playlister-button, .playlister-button-disabled {
   font-size:34pt;
   border-width: 0px;
+  border-radius: 5px;
   float:left;
   color: black;
   cursor: pointer;
@@ -92,6 +93,7 @@ body {
 .playlister-button-add, .playlister-button-disabled-add{
   font-size:37.5pt;
   border-width: 0px;
+  border-radius: 5px;
   float:left;
   color: black;
   cursor: pointer;

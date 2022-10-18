@@ -17,6 +17,7 @@ export const GlobalStoreActionType = {
     CREATE_NEW_LIST: "CREATE_NEW_LIST",
     DELETE_MARKED_LIST: "DELETE_MARKED_LIST",
     MARK_LIST_FOR_DELETION: "MARK_LIST_FOR_DELETION",
+    MARK_SONG_FOR_REMOVAL: "MARK_SONG_FOR_REMOVAL",
     CANCEL_ACTION: "CANCEL_ACTION",
     LOAD_ID_NAME_PAIRS: "LOAD_ID_NAME_PAIRS",
     SET_CURRENT_LIST: "SET_CURRENT_LIST",
@@ -36,7 +37,8 @@ export const useGlobalStore = () => {
         currentList: null,
         newListCounter: 0,
         listNameActive: false,
-        markedList: null
+        markedList: null,
+        markedSong: null
     });
 
     // HERE'S THE DATA STORE'S REDUCER, IT MUST
@@ -98,6 +100,17 @@ export const useGlobalStore = () => {
                     newListCounter: store.newListCounter,
                     listNameActive: false,
                     markedList: payload
+                });
+            }
+            // PREPARE TO REMOVE A SONG
+            case GlobalStoreActionType.MARK_SONG_FOR_REMOVAL: {
+                return setStore({
+                    idNamePairs: store.idNamePairs,
+                    currentList: store.currentList,
+                    newListCounter: store.newListCounter,
+                    listNameActive: false,
+                    markedList: null,
+                    markedSong: payload
                 });
             }
             // CANCELING AN ACTION OF MARKED LIST
@@ -267,11 +280,17 @@ export const useGlobalStore = () => {
                     });
                     response = await api.updatePlaylistSongs(playlist._id,newSongs);
                     if (response.data.success) {
-                        store.currentList.songs = newSongs;
-                        storeReducer({
-                            type: GlobalStoreActionType.SET_CURRENT_LIST,
-                            payload: store.currentList
-                        });
+                        async function getUpdatedList(){
+                            let response = await api.getPlaylistById(store.currentList._id);
+                            if (response.data.success) {
+                                store.currentList = response.data.playlist;
+                                storeReducer({
+                                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                                    payload: store.currentList
+                                });
+                            }
+                        }
+                        getUpdatedList();
                     }
                 }
                 addSong(playlist);
@@ -279,8 +298,53 @@ export const useGlobalStore = () => {
         }
         asyncCreateNewSong();
     }
-
-
+    //Mark a song to potentially be removed and open the remove song modal MARK_SONG_FOR_REMOVAL
+    store.markSongForRemoval = function(index){
+        console.log("hello");
+        let removeeSong = store.currentList.songs[index];
+        storeReducer({
+            type: GlobalStoreActionType.MARK_SONG_FOR_REMOVAL,
+            payload: removeeSong
+        });
+        store.showRemoveSongModal();
+    }
+    //THIS FUNCTION IS FOR REMOVING A MARKED SONG
+    store.removeSong = function() {
+        store.hideRemoveSongModal();
+        async function asyncRemoveSong(){
+            let newSongs = [];
+            for (let i = 0; i < store.currentList.songs.length; i++){
+                if(store.markedSong._id!=store.currentList.songs[i]._id){
+                    newSongs.push(store.currentList.songs[i]);
+                }
+            }
+            let response = await api.updatePlaylistSongs(store.currentList._id,newSongs);
+            if (response.data.success) {
+                store.currentList.songs = newSongs;
+                storeReducer({
+                    type: GlobalStoreActionType.SET_CURRENT_LIST,
+                    payload: store.currentList
+                });
+            }
+        }   
+        asyncRemoveSong();
+    }
+    // THIS FUNCTION IS FOR WHEN REMOVING A SONG IS CANCELED
+    store.cancelSongRemoval = function() {
+        store.hideRemoveSongModal()
+        store.markedSong = null;
+    }
+    // THIS FUNCTION SHOWS THE MODAL FOR PROMPTING THE USER
+    // TO SEE IF THEY REALLY WANT TO REMOVE A SONG
+    store.showRemoveSongModal = function() {
+        let modal = document.getElementById("remove-song-modal");
+        modal.classList.add("is-visible");
+    }
+    //THIS FUNCTION IS FOR HIDING THE REMOVE SONG MODAL
+    store.hideRemoveSongModal = function() {
+        let modal = document.getElementById("remove-song-modal");
+        modal.classList.remove("is-visible");
+    }
 
     // THIS FUNCTION LOADS ALL THE ID, NAME PAIRS SO WE CAN LIST ALL THE LISTS
     store.loadIdNamePairs = function () {

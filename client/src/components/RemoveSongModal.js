@@ -10,12 +10,19 @@ import { GlobalStoreContext } from '../store'
 function RemoveSongModal() {
     const { store } = useContext(GlobalStoreContext);
     let title = "";
+    let index = 0;
     if (store.markedSong) {
         title = store.markedSong.artist;
+        for (let i = 0; i < store.currentList.songs.length; i++){
+            if(store.markedSong._id===store.currentList.songs[i]._id){
+                index = i;
+            }
+        }
+
     }
     function handleRemoveConfirm(event) {
         event.stopPropagation();
-        store.removeSong();
+        store.addRemoveSongTransaction(index);
     }
     function handleRemoveCancel(event) {
         event.stopPropagation();

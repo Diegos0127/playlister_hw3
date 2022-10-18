@@ -7,12 +7,18 @@ function SongCard(props) {
     const { song, index } = props;
 
     let cardClass = "list-card unselected-list-card";
+    function handleClick (event) {
+        if (event.detail === 2) {
+            let index = event.target.id.slice(5,event.target.id.length-5);
+            store.markSongForEdit(parseInt(index));
+        }
+    }
     function handleRemoveSong(event){
         event.stopPropagation();
         let _id = event.target.id;
         if (_id.indexOf('remove-song-') >= 0)
             _id = ("" + _id).substring("remove-song-".length);
-        store.markSongForRemoval(parseInt(_id-1));
+        store.markSongForRemoval(parseInt(_id));
     }
 
     return (
@@ -20,6 +26,7 @@ function SongCard(props) {
             key={index}
             id={'song-' + index + '-card'}
             className={cardClass}
+            onClick={handleClick}
         >
             {index + 1}.
             <a

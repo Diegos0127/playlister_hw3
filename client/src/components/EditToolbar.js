@@ -20,7 +20,7 @@ function EditToolbar() {
         store.redo();
     }
     function handleAddSong(){
-        store.createNewSong();
+        store.addAddSongTransaction();
     }
     function handleClose() {
         history.push("/");
@@ -30,13 +30,25 @@ function EditToolbar() {
     if (store.isListNameEditActive) {
         editStatus = true;
     }
+    let undoStatus = false;
+    if (!store.hasTransactionToUndo()){
+        undoStatus = true;
+    }
+    let redoStatus = false;
+    if (!store.hasTransactionToRedo()){
+        redoStatus = true;
+    }
+    let listEditActive = true;
+    if (!store.listEditActive()){
+        listEditActive = false;
+    }
     return (
         <span id="edit-toolbar"
         >
             <input
                 type="button"
                 id='add-song-button'
-                disabled={editStatus}
+                disabled={editStatus||!listEditActive}
                 value="+"
                 className={enabledButtonClass+"-add"}
                 onClick={handleAddSong}
@@ -44,7 +56,7 @@ function EditToolbar() {
             <input
                 type="button"
                 id='undo-button'
-                disabled={editStatus}
+                disabled={editStatus||undoStatus}
                 value="⟲"
                 className={enabledButtonClass}
                 onClick={handleUndo}
@@ -52,7 +64,7 @@ function EditToolbar() {
             <input
                 type="button"
                 id='redo-button'
-                disabled={editStatus}
+                disabled={editStatus||redoStatus}
                 value="⟳"
                 className={enabledButtonClass}
                 onClick={handleRedo}
@@ -60,7 +72,7 @@ function EditToolbar() {
             <input
                 type="button"
                 id='close-button'
-                disabled={editStatus}
+                disabled={editStatus||!listEditActive}
                 value="&#x2715;"
                 className={enabledButtonClass}
                 onClick={handleClose}

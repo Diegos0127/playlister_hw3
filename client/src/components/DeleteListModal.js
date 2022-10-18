@@ -1,8 +1,8 @@
 import { useContext } from 'react'
 import { GlobalStoreContext } from '../store'
 /*
-    This toolbar is a functional React component that
-    manages the undo/redo/close buttons.
+    This modal is a functional React component that
+    creates the Delete List Modal.
     
     @author McKilla Gorilla
 */

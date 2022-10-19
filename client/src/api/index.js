@@ -28,6 +28,9 @@ export const createPlaylist = () => api.post('/playlist')
 export const deletePlaylist = (id) => api.delete(`/playlist/${id}`)
 export const updatePlaylistSongs = (id,Updatedsongs) => api.patch(`/playlist/${id}`,{
                                     songs:Updatedsongs})
+export const updatePlaylistName = (id,updatedName) => api.patch(`/playlist/${id}`,{
+                                    name:updatedName})
+                                    
 
 const apis = {
     getAllPlaylists,
@@ -35,7 +38,8 @@ const apis = {
     getPlaylistById,
     createPlaylist,
     deletePlaylist, 
-    updatePlaylistSongs
+    updatePlaylistSongs,
+    updatePlaylistName
 }
 
 export default apis

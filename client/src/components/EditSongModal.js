@@ -15,8 +15,6 @@ const EditSongModal = () => {
     const [ textYouTubeId, setTextYouTubeId ] = useState("dQw4w9WgXcQ");
     const [ count, setCounter] = useState(0);
 
-    console.log("open edit");
-    console.log("count:"+count);
     if (store.markedSong && count===0) {
         console.log(store.markedSong.title);
         setTextTitle(store.markedSong.title);

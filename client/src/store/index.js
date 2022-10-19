@@ -37,7 +37,6 @@ let ctrlPressed = false;
 // AVAILABLE TO THE REST OF THE APPLICATION
 export const useGlobalStore = () => {
     // THESE ARE ALL THE THINGS OUR DATA STORE WILL MANAGE
-    console.log("starting");
     const [store, setStore] = useState({
         idNamePairs: [],
         currentList: null,
@@ -121,7 +120,6 @@ export const useGlobalStore = () => {
             }
             // PREPARE TO DELETE A LIST
             case GlobalStoreActionType.MARK_LIST_FOR_DELETION: {
-                console.log(payload);
                 return setStore({
                     idNamePairs: store.idNamePairs,
                     currentList: null,
@@ -187,10 +185,10 @@ export const useGlobalStore = () => {
         async function asyncChangeListName(id) {
             let response = await api.getPlaylistById(id);
             if (response.data.success) {
-                let playlist = response.data.playist;
+                let playlist = response.data.playlist;
                 playlist.name = newName;
                 async function updateList(playlist) {
-                    response = await api.updatePlaylistById(playlist._id, playlist);
+                    response = await api.updatePlaylistName(playlist._id, newName);
                     if (response.data.success) {
                         async function getListPairs(playlist) {
                             response = await api.getPlaylistPairs();
@@ -203,6 +201,7 @@ export const useGlobalStore = () => {
                                         playlist: playlist
                                     }
                                 });
+                                store.history.push("/playlist/" + playlist._id);
                             }
                         }
                         getListPairs(playlist);
@@ -273,7 +272,6 @@ export const useGlobalStore = () => {
     // THIS FUNCTION CANCELS DELETION OF A LIST
     store.cancelListDeletion = function(){
         store.hideDeleteListModal();
-        console.log("Deletion of Playlist canceled")
         storeReducer({
             type: GlobalStoreActionType.CANCEL_ACTION,
             payload: null
@@ -369,8 +367,6 @@ export const useGlobalStore = () => {
     //THIS FUNCTION IS FOR REMOVING A MARKED SONG
     store.removeSong = function(index) {
         store.hideRemoveSongModal();
-        console.log("Whole list");
-        console.log(store.currentList.songs);
         async function asyncRemoveSong(){
             let newSongs = [];
             let markedSong = null;

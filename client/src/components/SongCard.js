@@ -3,9 +3,10 @@ import { GlobalStoreContext } from '../store'
 
 function SongCard(props) {
     const { store } = useContext(GlobalStoreContext);
-
+    const [ isDragging, setIsDragging ] = useState(false)
+    const [ draggedTo, setDraggedTo ] = useState(false)
     const { song, index } = props;
-
+    
     let cardClass = "list-card unselected-list-card";
     function handleClick (event) {
         if (event.detail === 2) {
@@ -20,11 +21,42 @@ function SongCard(props) {
             _id = ("" + _id).substring("remove-song-".length);
         store.markSongForRemoval(parseInt(_id));
     }
-
+    function handleDragStart (event) {
+        event.dataTransfer.setData("song", props.index);
+        setIsDragging(true);
+    }
+    function handleDragOver (event)  {
+        event.preventDefault();
+        setDraggedTo(true);
+    }
+    function handleDragEnter (event) {
+        event.preventDefault();
+        setDraggedTo(true);
+    }
+    function handleDragLeave (event)  {
+        event.preventDefault();
+        setDraggedTo(false);
+    }
+    function handleDrop (event) {
+        event.preventDefault();
+        let targetIndex = props.index;
+        let sourceIndex = Number(event.dataTransfer.getData("song"));
+        setIsDragging(false);
+        setDraggedTo(false);
+        console.log(targetIndex);
+        console.log(sourceIndex);
+        store.addMoveSongTransaction(sourceIndex, targetIndex);
+    }
     return (
         <div
             key={index}
             id={'song-' + index + '-card'}
+            onDragStart={handleDragStart}
+            onDragOver={handleDragOver}
+            onDragEnter={handleDragEnter}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+            draggable="true"
             className={cardClass}
             onClick={handleClick}
         >

@@ -1,4 +1,4 @@
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { GlobalStoreContext } from '../store'
 /*
     This modal is a functional React component that
@@ -8,20 +8,26 @@ import { GlobalStoreContext } from '../store'
 */
 
 
-function EditSongModal() {
+const EditSongModal = () => {
     const { store } = useContext(GlobalStoreContext);
-    let song = {title: "Untitled", artist: "Unknown", youTubeId: "dQw4w9WgXcQ"};
-    let index = 0;
-    console.log("Open edit");
-    if (store.markedSong) {
-        song = store.markedSong;
-        console.log(store.markedSong);
-    }
-    function handleUpdate(event) {
-        console.log(event.target.value);
+    const [ textTitle, setTextTitle ] = useState("Untitled");
+    const [ textArtist, setTextArtist ] = useState("Unknown");
+    const [ textYouTubeId, setTextYouTubeId ] = useState("dQw4w9WgXcQ");
+    const [ count, setCounter] = useState(0);
+
+    console.log("open edit");
+    console.log("count:"+count);
+    if (store.markedSong && count===0) {
+        console.log(store.markedSong.title);
+        setTextTitle(store.markedSong.title);
+        setTextArtist(store.markedSong.artist);
+        setTextYouTubeId(store.markedSong.youTubeId);
+        setCounter(1);
     }
     function handleEditConfirm(event) {
         event.stopPropagation();
+        setCounter(0);
+        let index = 0;
         for (let i = 0; i < store.currentList.songs.length; i++){
             if(store.markedSong._id===store.currentList.songs[i]._id){
                 index = i;
@@ -31,6 +37,7 @@ function EditSongModal() {
     }
     function handleEditCancel(event) {
         event.stopPropagation();
+        setCounter(0);
         store.cancelSongEdit();
     }
     return (
@@ -48,11 +55,11 @@ function EditSongModal() {
                     id="edit-song-modal-content"
                     className="modal-center">
                     <div id="title-prompt" className="modal-prompt">Title:</div>
-                    <input id="edit-song-modal-title-textfield" className='modal-textfield' type="text" defaultValue={song.title} onChange={handleUpdate} />
+                    <input id="edit-song-modal-title-textfield" className='modal-textfield' type="text" defaultValue={textTitle} onChange={(e)=>setTextTitle(e.target.value)} />
                     <div id="artist-prompt" className="modal-prompt">Artist:</div>
-                    <input id="edit-song-modal-artist-textfield" className='modal-textfield' type="text" defaultValue={song.artist} onChange={handleUpdate} />
+                    <input id="edit-song-modal-artist-textfield" className='modal-textfield' type="text" defaultValue={textArtist} onChange={(e)=>setTextArtist(e.target.value)} />
                     <div id="you-tube-id-prompt" className="modal-prompt">You Tube Id:</div>
-                    <input id="edit-song-modal-youTubeId-textfield" className='modal-textfield' type="text" defaultValue={song.youTubeId} onChange={handleUpdate} />
+                    <input id="edit-song-modal-youTubeId-textfield" className='modal-textfield' type="text" defaultValue={textYouTubeId} onChange={(e)=>setTextYouTubeId(e.target.value)} />
                 </div>
                 <div className="modal-south">
                     <input type="button" id="edit-song-confirm-button" className="modal-button" value='Confirm' onClick={handleEditConfirm} />
@@ -62,4 +69,5 @@ function EditSongModal() {
         </div>
     );
 }
+
 export default EditSongModal;

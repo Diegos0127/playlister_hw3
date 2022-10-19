@@ -10,7 +10,7 @@ import jsTPS_Transaction from "../common/jsTPS.js"
  * @author Diego Sandoval
  */
 export default class EditSong_Transaction extends jsTPS_Transaction {
-    constructor(store,initIndex ) {
+    constructor(store,initIndex) {
         super();
         this.store = store;
         this.index = initIndex;

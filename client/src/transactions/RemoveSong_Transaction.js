@@ -13,12 +13,14 @@ export default class RemoveSong_Transaction extends jsTPS_Transaction {
     constructor(store,initIndex) {
         super();
         this.store = store;
-        this.index = initIndex
+        this.index = initIndex;
+        this.removee = null;
     }
     doTransaction() {
+        this.removee = this.store.currentList.songs[this.index];
         this.store.removeSong(this.index);
     }
     undoTransaction() {
-        this.store.addSong();
+        this.store.addSong(this.removee,this.store.currentList.songs.length,this.index);
     }
 }
